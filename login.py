@@ -133,23 +133,114 @@ if TK_AVAILABLE:
             self.configure(bg="#f0f2f5")
             self.style = ttk.Style(self)
             try:
-self.style.theme_use('clam')
-except Exception:
-pass
-self.style.configure('Card.TFrame', background='white', relief='flat')
-self.style.configure('Title.TLabel', font=('Segoe UI', 18, 'bold'), background='white')
-self.style.configure('TLabel', background='white')
-self.style.configure('TButton', font=('Segoe UI', 10, 'bold'), padding=6)
-self.left_frame = ttk.Frame(self, style='Card.TFrame')
-self.left_frame.place(x=30, y=40, width=300, height=340)
-self.right_frame = ttk.Frame(self, style='Card.TFrame')
-self.right_frame.place(x=350, y=40, width=300, height=340)
-ttk.Label(self.left_frame, text="Welcome Back!", style='Title.TLabel').pack(pady=(24,6))
-ttk.Label(self.left_frame, text="Login to your account", font=('Segoe UI', 10), background='white').pack(pady=(0,16))
-self.login_frame = ttk.Frame(self.right_frame, style='Card.TFrame')
-self.register_frame = ttk.Frame(self.right_frame, style='Card.TFrame')
-self.create_login_ui()
-self.create_register_ui()
-self.show_login()
-ttk.Label(self, text='Built with • Secure PBKDF2 password hashing', background='#f0f2f5', font=('Segoe UI', 8)).place(x=10, y=390)
-def create_login_ui(self):
+                self.style.theme_use('clam')
+            except Exception:
+                pass
+            self.style.configure('Card.TFrame', background='white', relief='flat')
+            self.style.configure('Title.TLabel', font=('Segoe UI', 18, 'bold'), background='white')
+            self.style.configure('TLabel', background='white')
+            self.style.configure('TButton', font=('Segoe UI', 10, 'bold'), padding=6)
+            self.left_frame = ttk.Frame(self, style='Card.TFrame')
+            self.left_frame.place(x=30, y=40, width=300, height=340)
+            self.right_frame = ttk.Frame(self, style='Card.TFrame')
+            self.right_frame.place(x=350, y=40, width=300, height=340)
+            ttk.Label(self.left_frame, text="Welcome Back!", style='Title.TLabel').pack(pady=(24,6))
+            ttk.Label(self.left_frame, text="Login to your account", font=('Segoe UI', 10), background='white').pack(pady=(0,16))
+            self.login_frame = ttk.Frame(self.right_frame, style='Card.TFrame')
+            self.register_frame = ttk.Frame(self.right_frame, style='Card.TFrame')
+            self.create_login_ui()
+            self.create_register_ui()
+            self.show_login()
+            ttk.Label(self, text='Built with  •  Secure PBKDF2 password hashing', background='#f0f2f5', font=('Segoe UI', 8)).place(x=10, y=390)
+        def create_login_ui(self):
+            frame = self.login_frame
+            frame.place(relx=0, rely=0, relwidth=1, relheight=1)
+            ttk.Label(frame, text='Username:').pack(anchor='w', padx=18, pady=(18,4))
+            self.login_username = ttk.Entry(frame)
+            self.login_username.pack(fill='x', padx=18)
+            ttk.Label(frame, text='Password:').pack(anchor='w', padx=18, pady=(12,4))
+            pass_frame = ttk.Frame(frame)
+            pass_frame.pack(fill='x', padx=18)
+            self.login_password = ttk.Entry(pass_frame, show='*')
+            self.login_password.pack(side='left', fill='x', expand=True)
+            self.show_pwd_var = tk.BooleanVar(value=False)
+            self.show_pwd_btn = ttk.Checkbutton(pass_frame, text='Show', variable=self.show_pwd_var, command=self.toggle_password)
+            self.show_pwd_btn.pack(side='left', padx=(8,0))
+            self.remember_var = tk.BooleanVar(value=False)
+            ttk.Checkbutton(frame, text='Remember me', variable=self.remember_var).pack(anchor='w', padx=18, pady=(10,0))
+            ttk.Button(frame, text='Login', command=self.handle_login).pack(fill='x', padx=18, pady=(12,6))
+            ttk.Button(frame, text='Create account', command=self.show_register).pack(fill='x', padx=18)
+        def create_register_ui(self):
+            frame = self.register_frame
+            frame.place(relx=0, rely=0, relwidth=1, relheight=1)
+            ttk.Label(frame, text='Choose a username:').pack(anchor='w', padx=18, pady=(18,4))
+            self.reg_username = ttk.Entry(frame)
+            self.reg_username.pack(fill='x', padx=18)
+            ttk.Label(frame, text='Choose a password:').pack(anchor='w', padx=18, pady=(12,4))
+            self.reg_password = ttk.Entry(frame, show='*')
+            self.reg_password.pack(fill='x', padx=18)
+            ttk.Label(frame, text='Confirm password:').pack(anchor='w', padx=18, pady=(12,4))
+            self.reg_password_confirm = ttk.Entry(frame, show='*')
+            self.reg_password_confirm.pack(fill='x', padx=18)
+            self.pw_strength_label = ttk.Label(frame, text='')
+            self.pw_strength_label.pack(anchor='w', padx=18, pady=(8,0))
+            self.reg_password.bind('<KeyRelease>', self.update_strength)
+            ttk.Button(frame, text='Register', command=self.handle_register).pack(fill='x', padx=18, pady=(12,6))
+            ttk.Button(frame, text='Back to login', command=self.show_login).pack(fill='x', padx=18)
+        def toggle_password(self):
+            if self.show_pwd_var.get():
+                self.login_password.config(show='')
+            else:
+                self.login_password.config(show='*')
+        def show_register(self):
+            self.login_frame.place_forget()
+            self.register_frame.place(relx=0, rely=0, relwidth=1, relheight=1)
+        def show_login(self):
+            self.register_frame.place_forget()
+            self.login_frame.place(relx=0, rely=0, relwidth=1, relheight=1)
+        def handle_register(self):
+            username = self.reg_username.get()
+            pw = self.reg_password.get()
+            pwc = self.reg_password_confirm.get()
+            if pw != pwc:
+                messagebox.showerror('Error', 'Passwords do not match.')
+                return
+            ok, msg = register_user(username, pw)
+            if ok:
+                messagebox.showinfo('Success', msg)
+                self.reg_username.delete(0, 'end')
+                self.reg_password.delete(0, 'end')
+                self.reg_password_confirm.delete(0, 'end')
+                self.pw_strength_label.config(text='')
+                self.show_login()
+            else:
+                messagebox.showerror('Error', msg)
+        def handle_login(self):
+            username = self.login_username.get()
+            pw = self.login_password.get()
+            ok, msg = authenticate_user(username, pw)
+            if ok:
+                self.open_dashboard(username)
+            else:
+                messagebox.showerror('Login failed', msg)
+        def update_strength(self, event=None):
+            pw = self.reg_password.get()
+            score = 0
+            if len(pw) >= 8:
+                score += 1
+            if any(c.islower() for c in pw) and any(c.isupper() for c in pw):
+                score += 1
+            if any(c.isdigit() for c in pw):
+                score += 1
+            if any(c in '!@#$%^&*()-_=+[]{};:,.<>?/' for c in pw):
+                score += 1
+            labels = {0: 'Very weak', 1: 'Weak', 2: 'Medium', 3: 'Strong', 4: 'Very strong'}
+            self.pw_strength_label.config(text=f'Password strength: {labels[score]}')
+        def open_dashboard(self, username: str):
+            dash = tk.Toplevel(self)
+            dash.title('Dashboard')
+            dash.geometry('420x260')
+            dash.resizable(False, False)
+            ttk.Label(dash, text=f'Welcome, {username}!', font=('Segoe UI', 14, 'bold')).pack(pady=(24,8))
+            ttk.Label(dash, text='You are now logged in. This is a sample dashboard.').pack(pady=(4,12))
+            ttk.Button(dash, text='Logout', command=dash.destroy).pack(pady=(8,0))
