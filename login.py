@@ -132,3 +132,24 @@ if TK_AVAILABLE:
             self.resizable(False, False)
             self.configure(bg="#f0f2f5")
             self.style = ttk.Style(self)
+            try:
+self.style.theme_use('clam')
+except Exception:
+pass
+self.style.configure('Card.TFrame', background='white', relief='flat')
+self.style.configure('Title.TLabel', font=('Segoe UI', 18, 'bold'), background='white')
+self.style.configure('TLabel', background='white')
+self.style.configure('TButton', font=('Segoe UI', 10, 'bold'), padding=6)
+self.left_frame = ttk.Frame(self, style='Card.TFrame')
+self.left_frame.place(x=30, y=40, width=300, height=340)
+self.right_frame = ttk.Frame(self, style='Card.TFrame')
+self.right_frame.place(x=350, y=40, width=300, height=340)
+ttk.Label(self.left_frame, text="Welcome Back!", style='Title.TLabel').pack(pady=(24,6))
+ttk.Label(self.left_frame, text="Login to your account", font=('Segoe UI', 10), background='white').pack(pady=(0,16))
+self.login_frame = ttk.Frame(self.right_frame, style='Card.TFrame')
+self.register_frame = ttk.Frame(self.right_frame, style='Card.TFrame')
+self.create_login_ui()
+self.create_register_ui()
+self.show_login()
+ttk.Label(self, text='Built with • Secure PBKDF2 password hashing', background='#f0f2f5', font=('Segoe UI', 8)).place(x=10, y=390)
+def create_login_ui(self):
