@@ -249,3 +249,23 @@ test_db = 'test_users.db'
 if os.path.exists(test_db):
 os.remove(test_db)
 create_db(test_db)
+ok, msg = register_user('alice', 'Password123!', test_db)
+assert ok, 'Failed to register alice: ' + msg
+ok, msg = register_user('bob', 'S3cureP@ss', test_db)
+assert ok, 'Failed to register bob: ' + msg
+ok, msg = register_user('alice', 'another', test_db)
+assert not ok and 'exists' in msg.lower(), 'Duplicate username not detected'
+ok, msg = authenticate_user('alice', 'Password123!', test_db)
+assert ok, 'Alice should authenticate'
+ok, msg = authenticate_user('alice', 'wrong', test_db)
+assert not ok and 'incorrect' in msg.lower(), 'Wrong password not detected'
+ok, msg = authenticate_user('charlie', 'x', test_db)
+assert not ok and 'not found' in msg.lower(), 'Non-existent user not handled'
+ok, msg = register_user('', 'x', test_db)
+assert not ok and 'cannot be empty' in msg.lower(), 'Empty username allowed'
+ok, msg = register_user('δユーザ', 'ユニコードP@ss', test_db)
+assert ok, 'Unicode username registration failed'
+ok, msg = register_user('samepass1', 'common', test_db)
+assert ok
+ok, msg = register_user('samepass2', 'common', test_db)
+assert ok
