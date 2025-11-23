@@ -244,3 +244,8 @@ if TK_AVAILABLE:
             ttk.Label(dash, text=f'Welcome, {username}!', font=('Segoe UI', 14, 'bold')).pack(pady=(24,8))
             ttk.Label(dash, text='You are now logged in. This is a sample dashboard.').pack(pady=(4,12))
             ttk.Button(dash, text='Logout', command=dash.destroy).pack(pady=(8,0))
+            def run_tests():
+test_db = 'test_users.db'
+if os.path.exists(test_db):
+os.remove(test_db)
+create_db(test_db)
