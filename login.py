@@ -269,3 +269,42 @@ ok, msg = register_user('samepass1', 'common', test_db)
 assert ok
 ok, msg = register_user('samepass2', 'common', test_db)
 assert ok
+with sqlite3.connect(test_db) as conn:
+c = conn.cursor()
+c.execute('SELECT salt FROM users WHERE username = ?', ('samepass1',))
+s1 = c.fetchone()[0]
+c.execute('SELECT salt FROM users WHERE username = ?', ('samepass2',))
+s2 = c.fetchone()[0]
+assert s1 != s2, 'Different users with same password should have different salts'
+if os.path.exists(test_db):
+os.remove(test_db)
+def main(argv):
+parser = argparse.ArgumentParser()
+parser.add_argument('--test', action='store_true')
+parser.add_argument('--cli', action='store_true')
+parser.add_argument('--register', action='store_true')
+parser.add_argument('--login', action='store_true')
+parser.add_argument('--username', type=str, default='')
+parser.add_argument('--password', type=str, default='')
+args = parser.parse_args(argv)
+if args.test:
+run_tests()
+print('All tests passed.')
+return
+create_db()
+if args.register or args.login:
+if not args.username or not args.password:
+print('When using --register or --login in non-interactive mode, you must provide --username and --password')
+return
+rc = run_cli_noninteractive(args)
+sys.exit(rc)
+if not stdin_is_available():
+if not TK_AVAILABLE:
+print('No stdin available and tkinter is not installed in this environment.')
+print('Options:')
+print(' - Run tests: python tk_login_app.py --test')
+print(' - Use non-interactive flags to register/login:')
+print(' python tk_login_app.py --register --username alice --password "P@ss"')
+print(' - Run in an environment with stdin or install tkinter for GUI.')
+return
+
