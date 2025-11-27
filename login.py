@@ -307,4 +307,14 @@ print(' - Use non-interactive flags to register/login:')
 print(' python tk_login_app.py --register --username alice --password "P@ss"')
 print(' - Run in an environment with stdin or install tkinter for GUI.')
 return
+if not TK_AVAILABLE or args.cli:
+if stdin_is_available():
+run_cli_interactive()
+else:
+print('stdin not available; use non-interactive flags or enable tkinter GUI.')
+return
+app = LoginApp()
+app.mainloop()
+if __name__ == '__main__':
+main(sys.argv[1:])
 
