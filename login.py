@@ -244,77 +244,76 @@ if TK_AVAILABLE:
             ttk.Label(dash, text=f'Welcome, {username}!', font=('Segoe UI', 14, 'bold')).pack(pady=(24,8))
             ttk.Label(dash, text='You are now logged in. This is a sample dashboard.').pack(pady=(4,12))
             ttk.Button(dash, text='Logout', command=dash.destroy).pack(pady=(8,0))
-            def run_tests():
-test_db = 'test_users.db'
-if os.path.exists(test_db):
-os.remove(test_db)
-create_db(test_db)
-ok, msg = register_user('alice', 'Password123!', test_db)
-assert ok, 'Failed to register alice: ' + msg
-ok, msg = register_user('bob', 'S3cureP@ss', test_db)
-assert ok, 'Failed to register bob: ' + msg
-ok, msg = register_user('alice', 'another', test_db)
-assert not ok and 'exists' in msg.lower(), 'Duplicate username not detected'
-ok, msg = authenticate_user('alice', 'Password123!', test_db)
-assert ok, 'Alice should authenticate'
-ok, msg = authenticate_user('alice', 'wrong', test_db)
-assert not ok and 'incorrect' in msg.lower(), 'Wrong password not detected'
-ok, msg = authenticate_user('charlie', 'x', test_db)
-assert not ok and 'not found' in msg.lower(), 'Non-existent user not handled'
-ok, msg = register_user('', 'x', test_db)
-assert not ok and 'cannot be empty' in msg.lower(), 'Empty username allowed'
-ok, msg = register_user('δユーザ', 'ユニコードP@ss', test_db)
-assert ok, 'Unicode username registration failed'
-ok, msg = register_user('samepass1', 'common', test_db)
-assert ok
-ok, msg = register_user('samepass2', 'common', test_db)
-assert ok
-with sqlite3.connect(test_db) as conn:
-c = conn.cursor()
-c.execute('SELECT salt FROM users WHERE username = ?', ('samepass1',))
-s1 = c.fetchone()[0]
-c.execute('SELECT salt FROM users WHERE username = ?', ('samepass2',))
-s2 = c.fetchone()[0]
-assert s1 != s2, 'Different users with same password should have different salts'
-if os.path.exists(test_db):
-os.remove(test_db)
+def run_tests():
+    test_db = 'test_users.db'
+    if os.path.exists(test_db):
+        os.remove(test_db)
+    create_db(test_db)
+    ok, msg = register_user('alice', 'Password123!', test_db)
+    assert ok, 'Failed to register alice: ' + msg
+    ok, msg = register_user('bob', 'S3cureP@ss', test_db)
+    assert ok, 'Failed to register bob: ' + msg
+    ok, msg = register_user('alice', 'another', test_db)
+    assert not ok and 'exists' in msg.lower(), 'Duplicate username not detected'
+    ok, msg = authenticate_user('alice', 'Password123!', test_db)
+    assert ok, 'Alice should authenticate'
+    ok, msg = authenticate_user('alice', 'wrong', test_db)
+    assert not ok and 'incorrect' in msg.lower(), 'Wrong password not detected'
+    ok, msg = authenticate_user('charlie', 'x', test_db)
+    assert not ok and 'not found' in msg.lower(), 'Non-existent user not handled'
+    ok, msg = register_user('', 'x', test_db)
+    assert not ok and 'cannot be empty' in msg.lower(), 'Empty username allowed'
+    ok, msg = register_user('δユーザ', 'ユニコードP@ss', test_db)
+    assert ok, 'Unicode username registration failed'
+    ok, msg = register_user('samepass1', 'common', test_db)
+    assert ok
+    ok, msg = register_user('samepass2', 'common', test_db)
+    assert ok
+    with sqlite3.connect(test_db) as conn:
+        c = conn.cursor()
+        c.execute('SELECT salt FROM users WHERE username = ?', ('samepass1',))
+        s1 = c.fetchone()[0]
+        c.execute('SELECT salt FROM users WHERE username = ?', ('samepass2',))
+        s2 = c.fetchone()[0]
+    assert s1 != s2, 'Different users with same password should have different salts'
+    if os.path.exists(test_db):
+        os.remove(test_db)
 def main(argv):
-parser = argparse.ArgumentParser()
-parser.add_argument('--test', action='store_true')
-parser.add_argument('--cli', action='store_true')
-parser.add_argument('--register', action='store_true')
-parser.add_argument('--login', action='store_true')
-parser.add_argument('--username', type=str, default='')
-parser.add_argument('--password', type=str, default='')
-args = parser.parse_args(argv)
-if args.test:
-run_tests()
-print('All tests passed.')
-return
-create_db()
-if args.register or args.login:
-if not args.username or not args.password:
-print('When using --register or --login in non-interactive mode, you must provide --username and --password')
-return
-rc = run_cli_noninteractive(args)
-sys.exit(rc)
-if not stdin_is_available():
-if not TK_AVAILABLE:
-print('No stdin available and tkinter is not installed in this environment.')
-print('Options:')
-print(' - Run tests: python tk_login_app.py --test')
-print(' - Use non-interactive flags to register/login:')
-print(' python tk_login_app.py --register --username alice --password "P@ss"')
-print(' - Run in an environment with stdin or install tkinter for GUI.')
-return
-if not TK_AVAILABLE or args.cli:
-if stdin_is_available():
-run_cli_interactive()
-else:
-print('stdin not available; use non-interactive flags or enable tkinter GUI.')
-return
-app = LoginApp()
-app.mainloop()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--test', action='store_true')
+    parser.add_argument('--cli', action='store_true')
+    parser.add_argument('--register', action='store_true')
+    parser.add_argument('--login', action='store_true')
+    parser.add_argument('--username', type=str, default='')
+    parser.add_argument('--password', type=str, default='')
+    args = parser.parse_args(argv)
+    if args.test:
+        run_tests()
+        print('All tests passed.')
+        return
+    create_db()
+    if args.register or args.login:
+        if not args.username or not args.password:
+            print('When using --register or --login in non-interactive mode, you must provide --username and --password')
+            return
+        rc = run_cli_noninteractive(args)
+        sys.exit(rc)
+    if not stdin_is_available():
+        if not TK_AVAILABLE:
+            print('No stdin available and tkinter is not installed in this environment.')
+            print('Options:')
+            print(' - Run tests: python tk_login_app.py --test')
+            print(' - Use non-interactive flags to register/login:')
+            print('     python tk_login_app.py --register --username alice --password "P@ss"')
+            print(' - Run in an environment with stdin or install tkinter for GUI.')
+            return
+    if not TK_AVAILABLE or args.cli:
+        if stdin_is_available():
+            run_cli_interactive()
+        else:
+            print('stdin not available; use non-interactive flags or enable tkinter GUI.')
+        return
+    app = LoginApp()
+    app.mainloop()
 if __name__ == '__main__':
-main(sys.argv[1:])
-
+    main(sys.argv[1:])
